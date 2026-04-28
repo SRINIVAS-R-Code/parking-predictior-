@@ -209,7 +209,7 @@ const Parking = () => {
             <div className="hud-sidebar">
                 <div className="hud-header">
                     <div>
-                        <div className="hud-logo"><span>P</span> PARKEASE HUD</div>
+                        <div className="hud-logo"><span>S</span> SMARTPARK HUD</div>
                         <div className="hud-subtitle">India ML Engine V2.0</div>
                     </div>
                     <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 12, border: '1px solid var(--border)', padding: '4px 8px', borderRadius: 6 }}>← Exit</Link>
