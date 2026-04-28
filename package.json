@@ -1,0 +1,13 @@
+{
+  "name": "smartpark",
+  "version": "1.0.0",
+  "description": "SmartPark - Smart Parking Solution (Django + React)",
+  "scripts": {
+    "dev": "cd backend_django && ..\\venv\\Scripts\\python manage.py runserver",
+    "start": "cd backend_django && ..\\venv\\Scripts\\python manage.py runserver",
+    "frontend": "npm start --prefix Frontend",
+    "build": "npm install --prefix Frontend && npm run build --prefix Frontend"
+  },
+  "author": "",
+  "license": "ISC"
+}
