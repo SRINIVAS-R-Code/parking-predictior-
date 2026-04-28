@@ -51,15 +51,6 @@ def predict_availability(city, slot_time, price, space_id=None):
     Features: ['zone', 'hour', 'day_of_week', 'is_weekend', 'total_slots', 'vehicle_type', 'parking_fee_collected']
     """
     model, encoders = get_model()
-    
-    # Reload model one more time just in case to ensure we grab the newest one
-    try:
-        _model = joblib.load(MODEL_PATH)
-        _encoders = joblib.load(ENCODERS_PATH)
-        model = _model
-        encoders = _encoders
-    except:
-        pass
 
     if model is None or encoders is None:
         return 50  # Fallback

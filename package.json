@@ -8,6 +8,6 @@
     "frontend": "npm start --prefix Frontend",
     "build": "npm install --prefix Frontend && npm run build --prefix Frontend"
   },
-  "author": "",
+  "author": "Srinivas R",
   "license": "ISC"
 }

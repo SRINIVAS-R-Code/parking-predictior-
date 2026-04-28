@@ -38,7 +38,11 @@ const Booking = () => {
     }
 
     const handleDeleteBookingSuccess = () => {
-        fetchBookings({ user_id: user?._id, setBookings })
+        if (user?.type === 'owner') {
+            fetchBookings({ owner_id: user?._id, setBookings })
+        } else {
+            fetchBookings({ user_id: user?._id, setBookings })
+        }
         setShowDeleteModal(false)
     }
 
