@@ -313,3 +313,64 @@ export const deleteUser = async ({ id, handleDeleteUserSuccess, handleDeleteUser
         handleDeleteUserFailure(error?.response?.data?.error)
     }
 }
+
+// ─── NEW: Dedicated SmartPark API endpoints ───────────────────────────────
+
+/**
+ * GET /api/slots
+ * Returns available parking slots with live AI availability scores.
+ * @param {Object} params - { city, date, parking_id, user_id, setSlots }
+ */
+export const fetchSlots = async ({ city, date, parking_id, user_id, setSlots }) => {
+    try {
+        let query = ''
+        if (city)       query += `city=${city}&`
+        if (date)       query += `date=${date}&`
+        if (parking_id) query += `parking_id=${parking_id}&`
+        if (user_id)    query += `user_id=${user_id}&`
+        const result = await axios.get(`${BASE_URL}api/slots?${query}`)
+        if (result?.data?.slots) {
+            setSlots(result.data.slots)
+        }
+        console.log('fetchSlots ', result);
+    } catch (error) {
+        console.error('fetchSlots ', error);
+    }
+}
+
+/**
+ * GET /api/predict?city=Mumbai&time=10:00am&price=50
+ * Returns ML prediction score + model metadata.
+ * @param {Object} params - { city, time, price }
+ * @returns {Object} - { availability_score, availability_label, model, precision, predicted_at }
+ */
+export const fetchPrediction = async ({ city, time, price = 0 }) => {
+    try {
+        const result = await axios.get(`${BASE_URL}api/predict?city=${city}&time=${time}&price=${price}`)
+        console.log('fetchPrediction ', result?.data);
+        return result?.data
+    } catch (error) {
+        console.error('fetchPrediction ', error);
+        return { availability_score: 50, availability_label: 'Moderate' }
+    }
+}
+
+/**
+ * GET /api/history?user_id=1  OR  ?owner_id=2
+ * Returns full booking history with nested space + parking details.
+ * @param {Object} params - { user_id, owner_id, setHistory }
+ */
+export const fetchHistory = async ({ user_id, owner_id, setHistory }) => {
+    try {
+        let query = ''
+        if (user_id)  query += `user_id=${user_id}&`
+        if (owner_id) query += `owner_id=${owner_id}&`
+        const result = await axios.get(`${BASE_URL}api/history?${query}`)
+        if (result?.data?.history) {
+            setHistory(result.data.history)
+        }
+        console.log('fetchHistory ', result);
+    } catch (error) {
+        console.error('fetchHistory ', error);
+    }
+}
