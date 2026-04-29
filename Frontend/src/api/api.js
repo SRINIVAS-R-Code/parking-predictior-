@@ -356,6 +356,21 @@ export const fetchPrediction = async ({ city, time, price = 0 }) => {
 }
 
 /**
+ * POST /api/predict/bulk
+ * Expects array of points: [{ city, time, price, ... }]
+ * Returns same array with ML predictions.
+ */
+export const predictBulk = async (points) => {
+    try {
+        const result = await axios.post(`${BASE_URL}api/predict/bulk`, points)
+        return result?.data || []
+    } catch (error) {
+        console.error('predictBulk ', error);
+        return points.map(p => ({ ...p, availability_score: 50, availability_label: 'Unknown' }))
+    }
+}
+
+/**
  * GET /api/history?user_id=1  OR  ?owner_id=2
  * Returns full booking history with nested space + parking details.
  * @param {Object} params - { user_id, owner_id, setHistory }

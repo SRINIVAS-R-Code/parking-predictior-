@@ -4,7 +4,7 @@ from .views import (
     UserViewSet, ParkingViewSet, SpaceViewSet,
     BookingViewSet, ReviewViewSet, PaymentMethodViewSet,
     register_user, login_user, reset_password,
-    api_slots, api_predict, api_history,
+    api_slots, api_predict, api_history, api_predict_bulk,
 )
 
 router = DefaultRouter(trailing_slash=False)
@@ -24,6 +24,7 @@ urlpatterns = [
     # ── Dedicated SmartPark API  (/api/...) ───────────────────
     path('api/slots',   api_slots,   name='api_slots'),    # Available slots + AI scores
     path('api/predict', api_predict, name='api_predict'),  # Direct ML prediction
+    path('api/predict/bulk', api_predict_bulk, name='api_predict_bulk'), # Bulk ML prediction
     path('api/history', api_history, name='api_history'),  # Booking history
 
     # ── DRF Router (existing CRUD endpoints) ──────────────────

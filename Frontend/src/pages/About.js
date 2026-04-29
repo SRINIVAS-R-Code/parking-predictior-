@@ -23,10 +23,10 @@ const About = () => {
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(5,8,16,0.78) 0%, rgba(5,8,16,0.92) 100%)" }} />
                 <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "80px 28px" }}>
                     <div className="sp-badge" style={{ marginBottom: 20 }}>ℹ️ About Us</div>
-                    <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(32px,5vw,60px)", fontWeight: 800, letterSpacing: -2, marginBottom: 20, lineHeight: 1.1 }}>
+                    <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(32px,5vw,60px)", fontWeight: 800, letterSpacing: -2, marginBottom: 20, lineHeight: 1.1, color: "#ffffff", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
                         Revolutionizing <span className="gradient-text">Urban Parking</span>
                     </h1>
-                    <p style={{ color: "var(--text-secondary)", fontSize: 18, maxWidth: 600, margin: "0 auto", lineHeight: 1.7 }}>
+                    <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 18, maxWidth: 600, margin: "0 auto", lineHeight: 1.7, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
                         We connect drivers with parking spaces using AI — saving time, reducing emissions, and empowering communities across India.
                     </p>
                 </div>

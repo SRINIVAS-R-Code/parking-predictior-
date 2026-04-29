@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { fetchParkings } from '../api/api'
+import { fetchParkings, predictBulk } from '../api/api'
+import Papa from 'papaparse'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -98,7 +99,7 @@ const MapTypeSwitcher = ({ activeType, onTypeChange }) => {
     )
 }
 
-const createCustomIcon = (score) => {
+const createCustomIcon = (score, isUploaded = false) => {
     let typeClass = 'hud-marker-high'
     let text = score ? `${score}%` : '??'
     
@@ -110,9 +111,11 @@ const createCustomIcon = (score) => {
         typeClass = 'hud-marker-mid'
     }
 
+    let ringHTML = isUploaded ? `<div style="position:absolute; inset:-4px; border:2px solid #00d4ff; border-radius:50%; animation: pulse 2s infinite;"></div>` : ''
+
     return L.divIcon({
         className: 'custom-marker',
-        html: `<div class="hud-marker ${typeClass}">${text}</div>`,
+        html: `<div style="position:relative">${ringHTML}<div class="hud-marker ${typeClass}">${text}</div></div>`,
         iconSize: [38, 38],
         iconAnchor: [19, 19]
     })
@@ -135,7 +138,7 @@ const MapWithControls = ({ activeType, onTypeChange, filteredParkings, navigate 
                         <Marker
                             key={idx}
                             position={[parseFloat(p.lat), parseFloat(p.long)]}
-                            icon={createCustomIcon(score)}
+                            icon={createCustomIcon(score, p.isUploaded)}
                             eventHandlers={{ click: () => navigate('/space', { state: { parking: p } }) }}
                         >
                             <Popup className="hud-popup">
@@ -166,9 +169,86 @@ const Parking = () => {
     const user = useSelector((state) => state.user);
     const navigate = useNavigate()
     const [parkings, setParkings] = useState()
+    const [uploadedParkings, setUploadedParkings] = useState([])
+    const [isProcessing, setIsProcessing] = useState(false)
+    const fileInputRef = useRef(null)
     const [cityFilter, setCityFilter] = useState('')
     const [searchQuery, setSearchQuery] = useState('')
     const [mapType, setMapType] = useState('satellite')
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        setIsProcessing(true)
+        
+        const fileExt = file.name.split('.').pop().toLowerCase()
+        let parsedNodes = []
+        
+        if (fileExt === 'csv') {
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async (results) => {
+                    const data = results.data.map(row => ({
+                        name: row.name || 'CSV Uploaded Node',
+                        city: row.city || 'Unknown',
+                        lat: row.lat || row.latitude,
+                        long: row.long || row.longitude || row.lng,
+                        address: row.address || 'Uploaded from CSV',
+                        price: row.price || 50,
+                        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                        isUploaded: true
+                    })).filter(p => p.lat && p.long)
+                    
+                    if (data.length > 0) {
+                        const enrichedData = await predictBulk(data)
+                        setUploadedParkings(prev => [...prev, ...enrichedData])
+                    }
+                    setIsProcessing(false)
+                }
+            })
+        } else if (fileExt === 'kml') {
+            const reader = new FileReader()
+            reader.onload = async (e) => {
+                const text = e.target.result
+                const parser = new DOMParser()
+                const xmlDoc = parser.parseFromString(text, "text/xml")
+                const placemarks = xmlDoc.getElementsByTagName("Placemark")
+                
+                for (let i = 0; i < placemarks.length; i++) {
+                    const pm = placemarks[i]
+                    const name = pm.getElementsByTagName("name")[0]?.textContent || 'KML Node'
+                    const coordsNode = pm.getElementsByTagName("coordinates")[0]
+                    if (coordsNode) {
+                        const coords = coordsNode.textContent.trim().split(',')
+                        if (coords.length >= 2) {
+                            parsedNodes.push({
+                                name,
+                                city: 'Unknown',
+                                lat: coords[1],
+                                long: coords[0],
+                                address: 'Uploaded from KML',
+                                price: 50,
+                                time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+                                isUploaded: true
+                            })
+                        }
+                    }
+                }
+                
+                if (parsedNodes.length > 0) {
+                    const enrichedData = await predictBulk(parsedNodes)
+                    setUploadedParkings(prev => [...prev, ...enrichedData])
+                }
+                setIsProcessing(false)
+            }
+            reader.readAsText(file)
+        } else {
+            alert("Only CSV or KML files are supported.")
+            setIsProcessing(false)
+        }
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }
 
     useEffect(() => {
         if (user?.type === 'owner') {
@@ -183,16 +263,17 @@ const Parking = () => {
     const indiaBounds = [[6.5, 68.0], [37.6, 97.4]];
 
     const filteredParkings = useMemo(() => {
-        if (!parkings) return []
-        let filtered = parkings
+        let combined = [...(parkings || []), ...uploadedParkings]
+        if (combined.length === 0) return []
+        let filtered = combined
         if (cityFilter && cityFilter !== 'All') {
-            filtered = filtered.filter(p => p.city?.toLowerCase() === cityFilter.toLowerCase())
+            filtered = filtered.filter(p => p.city?.toLowerCase() === cityFilter.toLowerCase() || p.isUploaded)
         }
         if (searchQuery) {
             filtered = filtered.filter(p => p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || p.city?.toLowerCase().includes(searchQuery.toLowerCase()))
         }
         return filtered
-    }, [parkings, cityFilter, searchQuery])
+    }, [parkings, uploadedParkings, cityFilter, searchQuery])
 
     const stats = useMemo(() => {
         if (!filteredParkings) return { total: 0, live: 0, avg: 0 }
@@ -215,21 +296,47 @@ const Parking = () => {
                     <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 12, border: '1px solid var(--border)', padding: '4px 8px', borderRadius: 6 }}>← Exit</Link>
                 </div>
 
-                <div className="hud-card active">
+                <div className="hud-card active" style={{ boxShadow: "0 0 15px rgba(124,58,237,0.3)", border: "1px solid rgba(124,58,237,0.5)" }}>
                     <div className="hud-section-title">System Core</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                         <div style={{ width: 44, height: 44, borderRadius: '50%', border: '2px dashed #7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulse 3s infinite' }}>
                             <div style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid rgba(124,58,237,0.3)' }}></div>
                         </div>
                         <div>
-                            <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: 14 }}>ML Model Active</div>
-                            <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>Continuous Learning: {filteredParkings.length * 10} Samples</div>
+                            <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: 14 }}>Random Forest ML Active</div>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>Processing: {filteredParkings.length * 10} Datapoints</div>
                             <div style={{ color: 'var(--text-secondary)', fontSize: 11 }}>Precision: 94.8%</div>
                         </div>
                     </div>
                     <div style={{ marginTop: 16, height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: '100%', background: 'linear-gradient(90deg, #7c3aed, #f472b6)', animation: 'tickerScroll 2s linear infinite' }}></div>
+                        <div style={{ height: '100%', width: '100%', background: 'linear-gradient(90deg, #7c3aed, #00d4ff, #7c3aed)', backgroundSize: '200% 100%', animation: 'tickerScroll 2s linear infinite' }}></div>
                     </div>
+                </div>
+
+                <div className="hud-card" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.05), transparent)", border: "1px solid rgba(0,212,255,0.3)" }}>
+                    <div className="hud-section-title" style={{ color: "#00d4ff" }}>Data Ingestion</div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 12 }}>
+                        Upload CSV/KML datasets to instantly map parking nodes and run Random Forest predictions.
+                    </div>
+                    <input 
+                        type="file" 
+                        accept=".csv,.kml" 
+                        ref={fileInputRef} 
+                        onChange={handleFileUpload} 
+                        style={{ display: 'none' }} 
+                    />
+                    <button 
+                        onClick={() => fileInputRef.current.click()} 
+                        disabled={isProcessing}
+                        style={{ width: "100%", padding: "10px", background: "rgba(0,212,255,0.1)", border: "1px dashed #00d4ff", borderRadius: 6, color: "#00d4ff", fontWeight: 700, cursor: isProcessing ? "not-allowed" : "pointer", transition: "all 0.2s" }}
+                    >
+                        {isProcessing ? "⏳ Processing Data..." : "📁 Upload Dataset (CSV/KML)"}
+                    </button>
+                    {uploadedParkings.length > 0 && (
+                        <div style={{ marginTop: 8, fontSize: 11, color: "#00d4ff", textAlign: "right" }}>
+                            {uploadedParkings.length} External Nodes Active
+                        </div>
+                    )}
                 </div>
 
                 <div className="hud-card">

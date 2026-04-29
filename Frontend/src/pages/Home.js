@@ -103,22 +103,22 @@ function Home() {
             zIndex: 0,
           }} />
         ))}
-        {/* Dark-to-light overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.70) 100%)", zIndex: 1 }} />
+        {/* Dark overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.80) 100%)", zIndex: 1 }} />
         {/* Subtle grid overlay */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px", zIndex: 1, pointerEvents: "none" }} />
 
         {/* Content */}
         <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "80px 28px", maxWidth: 860, margin: "0 auto", transition: "opacity 0.4s ease", opacity: animating ? 0 : 1 }}>
-          <div className="sp-hero-eyebrow" style={{ marginBottom: 28, background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.25)", color: "#2563eb" }}>{cur.badge}</div>
-          <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(48px,7.5vw,86px)", fontWeight: 800, letterSpacing: -3, lineHeight: 1.05, marginBottom: 24, color: "#0f172a", textShadow: "0 1px 8px rgba(255,255,255,0.6)" }}>
+          <div className="sp-hero-eyebrow" style={{ marginBottom: 28, background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.25)", color: "#3b82f6" }}>{cur.badge}</div>
+          <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(48px,7.5vw,86px)", fontWeight: 800, letterSpacing: -3, lineHeight: 1.05, marginBottom: 24, color: "#ffffff", textShadow: "0 2px 24px rgba(0,0,0,0.5)" }}>
             {cur.title}<br />
             <span className="gradient-text">{cur.highlight}</span>
           </h1>
-          <p style={{ color: "#1e293b", fontSize: 18, maxWidth: 580, margin: "0 auto 44px", lineHeight: 1.7, fontWeight: 500, textShadow: "0 1px 4px rgba(255,255,255,0.8)" }}>{cur.sub}</p>
+          <p style={{ color: "#cbd5e1", fontSize: 18, maxWidth: 580, margin: "0 auto 44px", lineHeight: 1.7, fontWeight: 500, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{cur.sub}</p>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginBottom: 64 }}>
             <Link to="/space" className="sp-btn-primary" style={{ fontSize: 16, padding: "14px 36px", boxShadow: "0 8px 32px rgba(37,99,235,0.4)" }}>🔍 Find Parking Now</Link>
-            <Link to="/about" style={{ fontSize: 16, padding: "14px 36px", borderRadius: 10, border: "2px solid rgba(15,23,42,0.25)", color: "#0f172a", fontWeight: 600, textDecoration: "none", backdropFilter: "blur(8px)", background: "rgba(255,255,255,0.8)", transition: "all 0.25s" }}>How It Works</Link>
+            <Link to="/about" style={{ fontSize: 16, padding: "14px 36px", borderRadius: 10, border: "2px solid rgba(255,255,255,0.5)", color: "#ffffff", fontWeight: 600, textDecoration: "none", backdropFilter: "blur(8px)", background: "rgba(15,23,42,0.3)", transition: "all 0.25s" }}>How It Works</Link>
           </div>
 
           {/* Slide dots */}

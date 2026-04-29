@@ -353,6 +353,35 @@ def api_predict(request):
         return Response({'error': str(e), 'availability_score': 50}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_predict_bulk(request):
+    """
+    POST /api/predict/bulk
+    Expects a JSON array of points: [{ "id": 1, "city": "Mumbai", "time": "10:00am", "price": 50, ... }]
+    Returns the same array with 'availability_score' and 'availability_label' added to each point.
+    """
+    points = request.data if isinstance(request.data, list) else []
+    result = []
+    
+    for pt in points:
+        city = pt.get('city', '')
+        time = pt.get('time', '')
+        price = pt.get('price', 0)
+        
+        try:
+            score = predict_availability(city=city, slot_time=time, price=float(price))
+            pt['availability_score'] = score
+            pt['availability_label'] = 'High' if score >= 70 else 'Moderate' if score >= 40 else 'Low'
+        except Exception:
+            pt['availability_score'] = None
+            pt['availability_label'] = 'Unknown'
+            
+        result.append(pt)
+        
+    return Response(result, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def api_history(request):
