@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { deleteUser, fetchUsers } from '../api/api'
 import { DeleteModal } from '../components';
 
 const Users = () => {
+    const user = useSelector((state) => state.user)
+    const navigate = useNavigate()
     const [users, setUsers] = useState()
     const [selectedUser, setSelectedUser] = useState()
     const [showDeleteModal, setShowDeleteModal] = useState(false)
 
     useEffect(() => {
+        if (!user || user?.type !== 'owner') {
+            navigate('/')
+            return
+        }
         fetchUsers({ setUsers })
-    }, [])
+    }, [user, navigate])
+
+    // Guard: show nothing while redirecting
+    if (!user || user?.type !== 'owner') return null
 
     const handleDelete = (user) => { setSelectedUser(user); setShowDeleteModal(true) }
 

@@ -34,6 +34,7 @@ const Layout = () => {
         { to: "/about", label: "About" },
         { to: "/parking", label: "Parking" },
         { to: "/space", label: "Find Spaces" },
+        { to: "/predictor", label: "Predictor" },
         { to: "/booking", label: "Bookings" },
     ];
 
@@ -91,7 +92,7 @@ const Layout = () => {
                         🅿️ SmartPark Predictor
                     </div>
                     <p style={{ color: "#64748b", fontSize: 13 }}>AI-Powered Smart Parking Availability Predictor</p>
-                    <p style={{ color: "#475569", fontSize: 12, marginTop: 4 }}>Serving 40+ cities across India</p>
+                    <p style={{ color: "#475569", fontSize: 12, marginTop: 4 }}>Serving prime areas across Bangalore</p>
                 </div>
                 <div>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>Navigation</div>
@@ -100,6 +101,7 @@ const Layout = () => {
                         <Link to="/about">ℹ️ About</Link>
                         <Link to="/parking">🅿️ Parking</Link>
                         <Link to="/space">🔍 Find Spaces</Link>
+                        <Link to="/predictor">🔮 Predictor</Link>
                     </div>
                 </div>
                 <div>
@@ -112,7 +114,7 @@ const Layout = () => {
                     </div>
                 </div>
                 <div className="sp-footer-copy">
-                    © {new Date().getFullYear()} Smart Parking Availability Predictor · Built with ❤️ for India
+                    © {new Date().getFullYear()} Smart Parking Availability Predictor · Built with ❤️ for Bangalore
                 </div>
             </footer>
         </div>

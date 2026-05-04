@@ -44,12 +44,12 @@ const ParkingForm = () => {
 
                 <div className="sp-input-group">
                     <label>Location Name</label>
-                    <input type="text" className="sp-input" placeholder="e.g. Downtown Metro Parking" 
+                    <input type="text" className="sp-input" placeholder="e.g. Koramangala Premium Parking" 
                         value={form?.name} onChange={(e) => handleFormChange({ key: 'name', value: e.target.value })} />
                 </div>
                 <div className="sp-input-group">
-                    <label>City</label>
-                    <input type="text" className="sp-input" placeholder="e.g. New York" 
+                    <label>City / Area</label>
+                    <input type="text" className="sp-input" placeholder="e.g. Koramangala, Bangalore" 
                         value={form?.city} onChange={(e) => handleFormChange({ key: 'city', value: e.target.value })} />
                 </div>
                 <div className="sp-input-group">
@@ -61,12 +61,12 @@ const ParkingForm = () => {
                 <div className="sp-grid mt-2 mb-3" style={{gridTemplateColumns:'1fr 1fr',gap:16}}>
                     <div className="sp-input-group" style={{margin:0}}>
                         <label>Latitude</label>
-                        <input type="number" className="sp-input" placeholder="40.7128" 
+                        <input type="number" className="sp-input" placeholder="e.g. 12.9716" 
                             value={form?.lat} onChange={(e) => handleFormChange({ key: 'lat', value: e.target.value })} />
                     </div>
                     <div className="sp-input-group" style={{margin:0}}>
                         <label>Longitude</label>
-                        <input type="number" className="sp-input" placeholder="-74.0060" 
+                        <input type="number" className="sp-input" placeholder="e.g. 77.5946" 
                             value={form?.long} onChange={(e) => handleFormChange({ key: 'long', value: e.target.value })} />
                     </div>
                 </div>

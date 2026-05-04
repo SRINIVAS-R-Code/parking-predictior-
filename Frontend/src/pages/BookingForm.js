@@ -25,6 +25,30 @@ const BookingForm = () => {
         }
         setError();
         setLoading(true);
+
+        // Bypass API for dynamic map nodes to allow seamless testing
+        if (space?.isDynamic) {
+            setTimeout(() => {
+                const dummyBooking = {
+                    _id: 'dyn_' + Math.floor(Math.random() * 100000),
+                    vehicle_company: form.vehicle_company,
+                    vehicle_model: form.vehicle_model,
+                    plate_number: form.plate_number,
+                    car_color: form.car_color,
+                    confirm_booking: 'pending',
+                    space_id: space,
+                    user_id: user?._id
+                };
+                
+                const existing = JSON.parse(localStorage.getItem('dynamicBookings') || '[]');
+                existing.push(dummyBooking);
+                localStorage.setItem('dynamicBookings', JSON.stringify(existing));
+
+                handleCreateBookingSuccess({ booking: dummyBooking });
+            }, 800);
+            return;
+        }
+
         createBooking({
             body: { ...form, user_id: user?._id },
             handleCreateBookingSuccess,
@@ -124,13 +148,6 @@ const BookingForm = () => {
                                         </span>
                                     </div>
                                 )}
-                                <div className="divider" style={{ margin: '8px 0' }} />
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ color: 'var(--text-secondary)', fontSize: 16 }}>💰 Price</span>
-                                    <span style={{ fontWeight: 800, fontSize: 22 }}>
-                                        ₹{space?.price}<span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-muted)' }}>/hr</span>
-                                    </span>
-                                </div>
                             </div>
                         </div>
                     )}
@@ -238,9 +255,9 @@ const BookingForm = () => {
                         border: '1px solid rgba(16,185,129,0.15)',
                         borderRadius: 10,
                     }}>
-                        <span style={{ fontSize: 18 }}>🔒</span>
+                        <span style={{ fontSize: 18 }}>🎉</span>
                         <p style={{ color: 'var(--text-muted)', fontSize: 12, margin: 0 }}>
-                            Secure booking. Payment collected at the parking entrance upon arrival.
+                            Secure booking — owner reviews and approves your request.
                         </p>
                     </div>
                 </div>

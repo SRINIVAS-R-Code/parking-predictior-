@@ -1,0 +1,4 @@
+name,city,lat,long,address,price
+Test Node 1,Bangalore,12.9716,77.5946,MG Road,50
+Test Node 2,Bangalore,12.9352,77.6245,Koramangala,40
+Test Node 3,Bangalore,12.9781,77.6408,Indiranagar,60

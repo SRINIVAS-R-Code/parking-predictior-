@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 const SpaceCard = ({ space, onBooking, setSelectedSpace, setShowDeleteModal }) => {
     const user = useSelector((state) => state.user);
     const navigate = useNavigate()
-    const { name, date, price, slot_start_time, slot_end_time, parking_id, is_booked, availability_score } = space
+    const { name, date, slot_start_time, slot_end_time, parking_id, is_booked, availability_score } = space
 
     const pred = availability_score || 0;
 
@@ -118,11 +118,11 @@ const SpaceCard = ({ space, onBooking, setSelectedSpace, setShowDeleteModal }) =
                         </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Price / hr</div>
-                        <div style={{ fontFamily: "'Space Grotesk'", fontSize: 20, fontWeight: 800, color: 'var(--accent)' }}>
-                            ₹{price}
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Slot</div>
+                            <div style={{ fontFamily: "'Space Grotesk'", fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>
+                                {slot_start_time} – {slot_end_time}
+                            </div>
                         </div>
-                    </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '8px 12px' }}>

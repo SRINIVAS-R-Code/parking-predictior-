@@ -39,7 +39,7 @@ const Register = () => {
                         Start Parking Smarter
                     </h2>
                     <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 15, lineHeight: 1.7, maxWidth: 300 }}>
-                        Create your free account and get instant access to AI-powered parking predictions across India.
+                        Create your free account and get instant access to AI-powered parking predictions across Bangalore.
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 36, textAlign: "left" }}>
                         {["✅ Free forever — no credit card", "✅ AI predictions in real-time", "✅ Book in under 30 seconds"].map((t, i) => (

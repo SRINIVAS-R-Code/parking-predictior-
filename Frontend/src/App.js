@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Reviews from './pages/Reviews';
 import Users from './pages/Users';
 import About from './pages/About';
+import ParkingPredictor from './pages/ParkingPredictor';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="review" element={<Reviews />} />
           <Route path="users" element={<Users />} />
           <Route path="about" element={<About />} />
+          <Route path="predictor" element={<ParkingPredictor />} />
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />

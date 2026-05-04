@@ -5,6 +5,8 @@ from .views import (
     BookingViewSet, ReviewViewSet, PaymentMethodViewSet,
     register_user, login_user, reset_password,
     api_slots, api_predict, api_history, api_predict_bulk,
+    predict_parking, model_info, batch_predict,
+    api_bangalore_lots
 )
 
 router = DefaultRouter(trailing_slash=False)
@@ -26,7 +28,11 @@ urlpatterns = [
     path('api/predict', api_predict, name='api_predict'),  # Direct ML prediction
     path('api/predict/bulk', api_predict_bulk, name='api_predict_bulk'), # Bulk ML prediction
     path('api/history', api_history, name='api_history'),  # Booking history
+    path('api/bangalore-lots/', api_bangalore_lots, name='api_bangalore_lots'),  # All 30 BLR lots
 
     # ── DRF Router (existing CRUD endpoints) ──────────────────
+    path('api/predict/v2/', predict_parking, name='predict_parking_v2'),
+    path('api/predict/v2/batch/', batch_predict, name='batch_predict_v2'),
+    path('api/model-info/', model_info, name='model_info'),
     path('', include(router.urls)),
 ]

@@ -8,7 +8,7 @@ const SpaceForm = () => {
     const navigate = useNavigate()
     const user = useSelector((state) => state.user);
 
-    const [form, setForm] = useState({ name: '', date: '', slot_start_time: '', slot_end_time: '', price: '', parking_id: '' })
+    const [form, setForm] = useState({ name: '', date: '', slot_start_time: '', slot_end_time: '', parking_id: '' })
     const [successMessage, setSuccessMessage] = useState()
     const [error, setError] = useState()
     const [loading, setLoading] = useState(false)
@@ -33,7 +33,7 @@ const SpaceForm = () => {
             setForm({
                 name: state.space.name, date: state.space.date,
                 slot_start_time: state.space.slot_start_time, slot_end_time: state.space.slot_end_time,
-                price: state.space.price, parking_id: state.space.parking_id
+                parking_id: state.space.parking_id
             })
         }
     }, [state, user])
@@ -55,17 +55,10 @@ const SpaceForm = () => {
                     </select>
                 </div>
 
-                <div className="sp-grid mt-2 mb-3" style={{gridTemplateColumns:'2fr 1fr',gap:16}}>
-                    <div className="sp-input-group" style={{margin:0}}>
-                        <label>Space Name</label>
-                        <input type="text" className="sp-input" placeholder="e.g. VIP Slot A1" 
-                            value={form?.name} onChange={(e) => handleFormChange({ key: 'name', value: e.target.value })} />
-                    </div>
-                    <div className="sp-input-group" style={{margin:0}}>
-                        <label>Price</label>
-                        <input type="number" className="sp-input" placeholder="$" 
-                            value={form?.price} onChange={(e) => handleFormChange({ key: 'price', value: e.target.value })} />
-                    </div>
+                <div className="sp-input-group" style={{margin:0}}>
+                    <label>Space Name</label>
+                    <input type="text" className="sp-input" placeholder="e.g. VIP Slot A1" 
+                        value={form?.name} onChange={(e) => handleFormChange({ key: 'name', value: e.target.value })} />
                 </div>
 
                 <div className="sp-input-group">

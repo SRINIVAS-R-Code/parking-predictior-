@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { deleteBooking, fetchBookings, updateBooking } from '../api/api'
 import { DeleteModal } from '../components';
@@ -11,37 +11,60 @@ const Booking = () => {
     const [selectedBooking, setSelectedBooking] = useState()
     const [showDeleteModal, setShowDeleteModal] = useState(false)
 
+    const handleSetBookings = useCallback((fetched) => {
+        const local = JSON.parse(localStorage.getItem('dynamicBookings') || '[]');
+        const userLocal = local.filter(b => user?.type === 'owner' ? false : b.user_id === user?._id);
+        setBookings([...userLocal, ...fetched]);
+    }, [user])
+
     useEffect(() => {
         if (user?.type === 'owner') {
-            fetchBookings({ owner_id: user?._id, setBookings })
+            fetchBookings({ owner_id: user?._id, setBookings: handleSetBookings })
         } else {
-            fetchBookings({ user_id: user?._id, setBookings })
+            fetchBookings({ user_id: user?._id, setBookings: handleSetBookings })
         }
-    }, [user])
+    }, [user, handleSetBookings])
 
     const handleDelete = (booking) => { setSelectedBooking(booking); setShowDeleteModal(true) }
 
     const handleUpdateBooking = ({ id, confirm_booking }) => {
+        if (id?.toString().startsWith('dyn_')) {
+            let local = JSON.parse(localStorage.getItem('dynamicBookings') || '[]');
+            const idx = local.findIndex(b => b._id === id);
+            if (idx > -1) {
+                local[idx].confirm_booking = confirm_booking;
+                localStorage.setItem('dynamicBookings', JSON.stringify(local));
+            }
+            handleUpdateBookingSuccess();
+            return;
+        }
         updateBooking({ id, body: { confirm_booking }, handleUpdateBookingSuccess, handleUpdateBookingFailure: () => {} })
     }
 
     const handleUpdateBookingSuccess = () => {
         if (user?.type === 'owner') {
-            fetchBookings({ owner_id: user?._id, setBookings })
+            fetchBookings({ owner_id: user?._id, setBookings: handleSetBookings })
         } else {
-            fetchBookings({ user_id: user?._id, setBookings })
+            fetchBookings({ user_id: user?._id, setBookings: handleSetBookings })
         }
     }
 
     const handleDeleteBooking = () => {
+        if (selectedBooking?._id?.toString().startsWith('dyn_')) {
+            let local = JSON.parse(localStorage.getItem('dynamicBookings') || '[]');
+            local = local.filter(b => b._id !== selectedBooking._id);
+            localStorage.setItem('dynamicBookings', JSON.stringify(local));
+            handleDeleteBookingSuccess();
+            return;
+        }
         deleteBooking({ id: selectedBooking?._id, handleDeleteBookingSuccess, handleDeleteBookingFailure: () => setShowDeleteModal(false) })
     }
 
     const handleDeleteBookingSuccess = () => {
         if (user?.type === 'owner') {
-            fetchBookings({ owner_id: user?._id, setBookings })
+            fetchBookings({ owner_id: user?._id, setBookings: handleSetBookings })
         } else {
-            fetchBookings({ user_id: user?._id, setBookings })
+            fetchBookings({ user_id: user?._id, setBookings: handleSetBookings })
         }
         setShowDeleteModal(false)
     }
@@ -56,7 +79,24 @@ const Booking = () => {
 
     return (
         <div className="sp-container" style={{paddingTop:40}}>
-            <h1 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:32,fontWeight:700,marginBottom:32}}>My Bookings</h1>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,marginBottom:28}}>
+                <h1 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:32,fontWeight:700}}>My Bookings</h1>
+                <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                    {[
+                        { label: 'Total', count: bookings.length, color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.2)', emoji: '🎫' },
+                        { label: 'Approved', count: bookings.filter(b => b.confirm_booking === 'approved').length, color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)', emoji: '✅' },
+                        { label: 'Pending', count: bookings.filter(b => b.confirm_booking === 'pending' || !b.confirm_booking).length, color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', emoji: '⏳' },
+                    ].map(stat => (
+                        <div key={stat.label} style={{display:'flex',alignItems:'center',gap:10,background:stat.bg,border:`1px solid ${stat.border}`,borderRadius:10,padding:'10px 18px'}}>
+                            <span style={{fontSize:18}}>{stat.emoji}</span>
+                            <div>
+                                <div style={{fontFamily:"'Space Grotesk'",fontSize:22,fontWeight:800,color:stat.color,lineHeight:1}}>{stat.count}</div>
+                                <div style={{fontSize:11,color:'var(--text-muted)'}}>{stat.label}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
             <div className="sp-table-wrap">
                 <table className="sp-table">

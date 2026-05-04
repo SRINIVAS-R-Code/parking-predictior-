@@ -35,6 +35,13 @@ const Reviews = () => {
         <div className="sp-container" style={{paddingTop:40}}>
             <h1 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:32,fontWeight:700,marginBottom:32}}>Owner Reviews</h1>
 
+            {!state?.owner_id && (
+                <div className="empty-state sp-card">
+                    <div className="icon">⭐</div>
+                    <p>Navigate to a parking owner's profile to view or leave reviews.</p>
+                </div>
+            )}
+            {state?.owner_id && (
             <div className="sp-grid sp-grid-2" style={{alignItems:'start'}}>
                 <div>
                     {reviews && reviews.length > 0 ? (
@@ -87,7 +94,8 @@ const Reviews = () => {
                     </div>
                 )}
             </div>
-            
+            )}
+
             <DeleteModal showModal={showDeleteModal} setShowModal={setShowDeleteModal} onDeleteConfirm={handleDeleteReview} />
         </div>
     )

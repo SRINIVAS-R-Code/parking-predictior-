@@ -190,7 +190,7 @@ const BookingSuccess = () => {
                     marginBottom: 28,
                     lineHeight: 1.6,
                 }}>
-                    💡 Payment will be collected at the parking entrance. Please arrive on time and carry your booking confirmation.
+                    💡 Parking is completely free! Please arrive on time and carry your booking confirmation.
                 </div>
 
                 {/* Action buttons */}

@@ -1,0 +1,396 @@
+.parking-predictor {
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.parking-predictor .container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.parking-predictor h1 {
+  color: #1f2937;
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: none;
+}
+
+.parking-predictor .subtitle {
+  color: #6b7280;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+.parking-predictor .model-info {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.parking-predictor .model-info p {
+  margin: 0;
+}
+
+.parking-predictor .model-info strong {
+  color: #667eea;
+}
+
+.parking-predictor .form-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f3f4f6;
+}
+
+.parking-predictor form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.parking-predictor .form-section {
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 20px;
+}
+
+.parking-predictor .form-section:last-of-type {
+  border-bottom: none;
+}
+
+.parking-predictor .form-section h3 {
+  color: #667eea;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.parking-predictor .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.parking-predictor .form-group label {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.parking-predictor .form-group input,
+.parking-predictor .form-group select {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.parking-predictor .form-group input:focus,
+.parking-predictor .form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.parking-predictor .form-group.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-direction: row;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.parking-predictor .form-group.checkbox input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.parking-predictor .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.parking-predictor .button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.parking-predictor .btn {
+  padding: 14px 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.parking-predictor .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.parking-predictor .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.parking-predictor .btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.parking-predictor .btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 2px solid #667eea;
+}
+
+.parking-predictor .btn-secondary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.parking-predictor .alert {
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.parking-predictor .alert-error {
+  background: #fee;
+  color: #c33;
+  border-left: 4px solid #c33;
+}
+
+.parking-predictor .prediction-result {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.parking-predictor .prediction-result h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.parking-predictor .result-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 30px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.parking-predictor .availability-status {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border-left: 5px solid;
+  margin-bottom: 20px;
+}
+
+.parking-predictor .status-icon {
+  font-size: 3rem;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+}
+
+.parking-predictor .status-text {
+  flex: 1;
+}
+
+.parking-predictor .status-text .label {
+  color: #999;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.parking-predictor .status-text .value {
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 5px 0 0 0;
+}
+
+.parking-predictor .metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.parking-predictor .metric {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.parking-predictor .metric-label {
+  color: #999;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 10px 0;
+}
+
+.parking-predictor .metric-value {
+  color: #667eea;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.parking-predictor .confidence-bar {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.parking-predictor .bar-label {
+  font-size: 0.85rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.parking-predictor .bar-container {
+  width: 100%;
+  height: 30px;
+  background: #e0e0e0;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.parking-predictor .bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.parking-predictor .input-summary {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.parking-predictor .input-summary h3 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.parking-predictor .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.parking-predictor .summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.parking-predictor .summary-item .key {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.parking-predictor .summary-item .value {
+  color: #333;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .parking-predictor h1 {
+    font-size: 1.8rem;
+  }
+
+  .parking-predictor .form-container {
+    padding: 20px;
+  }
+
+  .parking-predictor .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .parking-predictor .button-group {
+    flex-direction: column;
+  }
+
+  .parking-predictor .btn {
+    width: 100%;
+  }
+
+  .parking-predictor .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parking-predictor .prediction-result {
+    padding: 20px;
+  }
+
+  .parking-predictor .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

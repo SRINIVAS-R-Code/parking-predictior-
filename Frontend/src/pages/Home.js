@@ -7,47 +7,47 @@ const SLIDES = [
     badge: "🤖 AI-Powered Prediction",
     title: "Find Parking.",
     highlight: "Predict. Park. Go.",
-    sub: "Smart Parking Availability Predictor uses AI to forecast real-time space availability across 40+ Indian cities.",
+    sub: "SmartPark uses a RandomForest ML model trained on 600K+ real Bangalore records to forecast parking availability before you leave home.",
   },
   {
     img: "/hero2.png",
-    badge: "📍 40+ Indian Cities",
+    badge: "📍 Bangalore City",
     title: "Your City.",
     highlight: "Always a Spot.",
-    sub: "From Mumbai to Chennai — our live prediction engine scans thousands of spaces so you never circle again.",
+    sub: "From Koramangala to Whitefield — our live prediction engine monitors 60+ parking lots across 15 Bangalore areas in real time.",
   },
   {
     img: "/hero3.png",
     badge: "⚡ Real-Time Technology",
     title: "Smart Tech.",
     highlight: "Smarter Parking.",
-    sub: "AI-driven sensors and machine learning give you availability scores before you even start your engine.",
+    sub: "Satellite & street-view maps, time simulation, rich marker popups with live AI scores — navigate to any lot with one click.",
   },
 ];
 
 const stats = [
-  { num: "500+", lbl: "Parking Spaces" },
-  { num: "40+", lbl: "Indian Cities" },
-  { num: "10K+", lbl: "Happy Drivers" },
-  { num: "99%", lbl: "Uptime" },
+  { num: "30",   lbl: "Mapped Parking Lots" },
+  { num: "25+",  lbl: "Bangalore Areas" },
+  { num: "600K", lbl: "Training Records" },
+  { num: "RF",   lbl: "ML Model" },
 ];
 
 const steps = [
-  { icon: "🔍", num: "01", title: "Search", desc: "Browse available spots by city, date & time with real-time AI filtering." },
-  { icon: "📅", num: "02", title: "Book", desc: "Reserve instantly with secure confirmation in under 10 seconds." },
-  { icon: "🅿️", num: "03", title: "Park", desc: "Arrive at your reserved spot — no stress, no guessing, guaranteed." },
+  { icon: "🗺️", num: "01", title: "Explore Map", desc: "Browse 60+ live parking lots on an interactive AI-powered map with satellite, street, and dark views." },
+  { icon: "📅", num: "02", title: "Book a Slot", desc: "Select a time slot and reserve instantly — real booking flow backed by the database." },
+  { icon: "🅿️", num: "03", title: "Park Smart", desc: "Arrive at your reserved spot — confirmed booking, no guessing, no stress." },
 ];
 
 const features = [
-  { icon: "⚡", title: "Real-time Prediction", desc: "AI-powered availability with zero lag. Know exactly where to park before you leave." },
-  { icon: "💳", title: "Secure Payments", desc: "Multiple payment options with bank-grade encryption." },
-  { icon: "📍", title: "GPS Navigation", desc: "Integrated maps guide you turn-by-turn to your reserved spot." },
-  { icon: "⭐", title: "Verified Owners", desc: "Community-rated, background-verified parking owners you can trust." },
-  { icon: "🔔", title: "Smart Alerts", desc: "Get notified the moment your favourite spot becomes available." },
-  { icon: "📊", title: "Usage Analytics", desc: "Owners get detailed occupancy insights to optimize pricing." },
+  { icon: "⚡", title: "ML Availability Prediction", desc: "RandomForest model trained on 600K real Bangalore records. AI forecasts availability for every lot by hour, day and weather." },
+  { icon: "🗺️", title: "Interactive Map", desc: "Satellite, street, terrain & dark HUD modes. 30 lots plotted with real GPS coordinates across 25+ Bangalore areas." },
+  { icon: "📍", title: "Rich Marker Popups", desc: "Click any map marker to see AI score, lot type, total spaces and Navigate/Book buttons — no page reload needed." },
+  { icon: "⏱️", title: "Time Simulation Slider", desc: "Drag the hour slider to see how availability changes across the day — powered by the live ML model." },
+  { icon: "👤", title: "Role-Based Access", desc: "Owners manage their listings, approve bookings and track revenue. Seekers find and book spaces instantly." },
+  { icon: "📊", title: "Owner Analytics Dashboard", desc: "Owners get a real-time revenue, booking count and slot availability dashboard on their profile." },
 ];
 
-const cities = ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad", "Jaipur", "Surat"];
+const cities = ["Koramangala", "Indiranagar", "Whitefield", "HSR Layout", "Jayanagar", "Malleswaram", "Electronic City", "Marathahalli", "BTM Layout", "MG Road"];
 
 function Home() {
   const [slide, setSlide] = useState(0);
@@ -117,7 +117,7 @@ function Home() {
           </h1>
           <p style={{ color: "#cbd5e1", fontSize: 18, maxWidth: 580, margin: "0 auto 44px", lineHeight: 1.7, fontWeight: 500, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{cur.sub}</p>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginBottom: 64 }}>
-            <Link to="/space" className="sp-btn-primary" style={{ fontSize: 16, padding: "14px 36px", boxShadow: "0 8px 32px rgba(37,99,235,0.4)" }}>🔍 Find Parking Now</Link>
+            <Link to="/parking" className="sp-btn-primary" style={{ fontSize: 16, padding: "14px 36px", boxShadow: "0 8px 32px rgba(37,99,235,0.4)" }}>🗺️ Explore Live Map</Link>
             <Link to="/about" style={{ fontSize: 16, padding: "14px 36px", borderRadius: 10, border: "2px solid rgba(255,255,255,0.5)", color: "#ffffff", fontWeight: 600, textDecoration: "none", backdropFilter: "blur(8px)", background: "rgba(15,23,42,0.3)", transition: "all 0.25s" }}>How It Works</Link>
           </div>
 
@@ -179,7 +179,7 @@ function Home() {
             <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, letterSpacing: -1.5 }}>
               Park in <span className="gradient-text">3 Simple Steps</span>
             </h2>
-            <p style={{ color: "var(--text-secondary)", marginTop: 12, fontSize: 16 }}>No more guessing. Our predictor handles the hard part.</p>
+            <p style={{ color: "var(--text-secondary)", marginTop: 12, fontSize: 16 }}>No more guessing. Our ML predictor handles the hard part.</p>
           </div>
           <div className="sp-grid sp-grid-3">
             {steps.map((step, i) => (
@@ -221,14 +221,14 @@ function Home() {
       <section className="sp-section" style={{ paddingTop: 0 }}>
         <div className="sp-container">
           <div className="reveal" style={{ textAlign: "center", marginBottom: 40 }}>
-            <div className="sp-badge" style={{ marginBottom: 16 }}>🇮🇳 Coverage</div>
+            <div className="sp-badge" style={{ marginBottom: 16 }}>🏙️ Coverage</div>
             <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 800, letterSpacing: -1 }}>
-              Available in <span className="gradient-text">Top Indian Cities</span>
+              Available in <span className="gradient-text">Top Bangalore Localities</span>
             </h2>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
             {cities.map((city, i) => (
-              <Link to={`/space`} key={i} style={{
+              <Link to={`/parking`} key={i} style={{
                 padding: "10px 22px", borderRadius: 99,
                 background: "rgba(0,212,255,0.06)", border: "1px solid rgba(0,212,255,0.18)",
                 color: "var(--text-secondary)", fontSize: 14, fontWeight: 600,
@@ -258,11 +258,11 @@ function Home() {
               Ready to <span className="gradient-text">Never Circle Again?</span>
             </h2>
             <p style={{ color: "var(--text-secondary)", fontSize: 17, maxWidth: 500, margin: "0 auto 36px", lineHeight: 1.7 }}>
-              Join thousands of drivers who park smarter with AI-powered predictions.
+              Join drivers who park smarter with AI-powered predictions across 30 Bangalore lots.
             </p>
             <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
               <Link to="/register" className="sp-btn-primary" style={{ fontSize: 16, padding: "14px 36px" }}>✨ Create Free Account</Link>
-              <Link to="/space" className="sp-btn-outline" style={{ fontSize: 16, padding: "14px 36px" }}>🔍 Browse Spaces</Link>
+              <Link to="/parking" className="sp-btn-outline" style={{ fontSize: 16, padding: "14px 36px" }}>🗺️ View Live Map</Link>
             </div>
           </div>
         </div>

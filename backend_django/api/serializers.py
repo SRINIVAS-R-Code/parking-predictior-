@@ -35,12 +35,22 @@ class SpaceSerializer(serializers.ModelSerializer):
         model = Space
         fields = '__all__'
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['parking_id'] = ParkingSerializer(instance.parking_id).data if instance.parking_id else None
+        return response
+
 class BookingSerializer(serializers.ModelSerializer):
     _id = serializers.IntegerField(source='id', read_only=True)
 
     class Meta:
         model = Booking
         fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['space_id'] = SpaceSerializer(instance.space_id).data if instance.space_id else None
+        return response
 
 class ReviewSerializer(serializers.ModelSerializer):
     _id = serializers.IntegerField(source='id', read_only=True)

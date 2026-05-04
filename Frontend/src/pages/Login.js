@@ -41,10 +41,10 @@ const Login = () => {
                         SmartPark Predictor
                     </h2>
                     <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 16, lineHeight: 1.7, maxWidth: 320 }}>
-                        AI-powered real-time parking availability across 40+ Indian cities.
+                        AI-powered real-time parking availability across Bangalore.
                     </p>
                     <div style={{ display: "flex", gap: 20, justifyContent: "center", marginTop: 36 }}>
-                        {["500+ Spaces", "40+ Cities", "10K+ Drivers"].map((t, i) => (
+                        {["30 Lots", "25+ Areas", "600K Records"].map((t, i) => (
                             <div key={i} style={{ textAlign: "center" }}>
                                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent)" }}>{t}</div>
                             </div>
@@ -90,7 +90,7 @@ const Login = () => {
                     </p>
                     <div style={{ marginTop: 28, padding: "16px", borderRadius: "var(--radius-sm)", background: "rgba(0,212,255,0.04)", border: "1px solid rgba(0,212,255,0.1)" }}>
                         <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", lineHeight: 1.8 }}>
-                            🔒 Bank-grade encryption &nbsp;·&nbsp; 🚀 Instant access &nbsp;·&nbsp; 📍 40+ cities
+                            🔒 JWT Auth &nbsp;·&nbsp; 🚀 Instant access &nbsp;·&nbsp; 🤖 Bangalore AI Engine
                         </div>
                     </div>
                 </div>

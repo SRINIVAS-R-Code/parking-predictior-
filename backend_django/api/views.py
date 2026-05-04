@@ -10,9 +10,11 @@ from .serializers import (
     BookingSerializer, ReviewSerializer, PaymentMethodSerializer
 )
 from datetime import datetime
-
-
-# ─── Mixin: returns JSON {"message": "Deleted"} instead of 204 No Content ───
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .predictor import get_predictor# ─── Mixin: returns JSON {"message": "Deleted"} instead of 204 No Content ───
 class DeleteWithMessageMixin:
     """Override destroy() so the frontend can detect success via result.data.message."""
     def destroy(self, request, *args, **kwargs):
@@ -45,7 +47,11 @@ def register_user(request):
     if serializer.is_valid():
         user = serializer.save()
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
-    return Response({'error': str(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    errors = serializer.errors
+    first_field = list(errors.keys())[0]
+    first_error = errors[first_field][0]
+    return Response({'error': str(first_error).capitalize()}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -135,6 +141,7 @@ class ParkingViewSet(DeleteWithMessageMixin, viewsets.ModelViewSet):
 
 
 from .predictor import predict_availability
+from .bangalore_lots import BANGALORE_LOTS
 
 
 class SpaceViewSet(DeleteWithMessageMixin, viewsets.ModelViewSet):
@@ -407,4 +414,184 @@ def api_history(request):
     return Response({
         'count': len(data),
         'history': data,
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def predict_parking(request):
+    """
+    API endpoint to predict parking availability
+    
+    POST request with JSON body containing parking lot features
+    """
+    try:
+        data = json.loads(request.body)
+        
+        predictor = get_predictor()
+        
+        result = predictor.predict(data)
+        
+        return JsonResponse(result, status=200)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON in request body'
+        }, status=400)
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def model_info(request):
+    """
+    API endpoint to get information about the loaded model
+    
+    GET request
+    
+    Returns model configuration and feature information
+    """
+    try:
+        predictor = get_predictor()
+        info = predictor.get_model_info()
+        return JsonResponse(info, status=200)
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def batch_predict(request):
+    """
+    Batch prediction endpoint - predict for multiple parking lots at once
+    """
+    try:
+        data = json.loads(request.body)
+        predictions_data = data.get('predictions', [])
+        
+        predictor = get_predictor()
+        results = []
+        
+        for pred_input in predictions_data:
+            result = predictor.predict(pred_input)
+            results.append(result)
+        
+        return JsonResponse({
+            'success': True,
+            'results': results,
+            'count': len(results)
+        }, status=200)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON in request body'
+        }, status=400)
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  /api/bangalore-lots  → all 30 Bangalore parking lots with live ML scores
+# ─────────────────────────────────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_bangalore_lots(request):
+    """
+    GET /api/bangalore-lots/
+    Query params:
+        hour  (int 0-23)  – override hour for time-slider (default: current hour)
+
+    Returns all 30 Bangalore parking lots enriched with ML availability scores.
+    """
+    # Optional hour override from time slider
+    hour_param = request.query_params.get('hour')
+    hour_override = None
+    if hour_param is not None:
+        try:
+            hour_override = int(hour_param)
+        except ValueError:
+            pass
+
+    import random
+    result = []
+    
+    for lot in BANGALORE_LOTS:
+        # Generate stable scatter markers to simulate dense data
+        random.seed(f"{lot['lot_id']}_{hour_override}")
+        
+        # Generate just 1 marker per lot to keep the map clean and prevent clutter
+        num_markers = 1
+        
+        for i in range(num_markers):
+            # No scatter offset needed for a single node
+            lat_offset = 0
+            lng_offset = 0
+            
+            sub_lot = lot.copy()
+            sub_lot['lot_id'] = lot['lot_id']
+            sub_lot['lot_name'] = lot['lot_name']
+            sub_lot['lat'] = lot['lat'] + lat_offset
+            sub_lot['lng'] = lot['lng'] + lng_offset
+            
+            # Split spaces among the sub zones
+            sub_lot['total_spaces'] = max(10, lot['total_spaces'] // num_markers)
+            
+            try:
+                score = predict_availability(
+                    city=sub_lot['location_area'],
+                    slot_time='',
+                    price=sub_lot.get('price_per_hour', 0),
+                    space_id=sub_lot['lot_id'],
+                    lot_type=sub_lot['lot_type'],
+                    total_spaces=sub_lot['total_spaces'],
+                    hour_override=hour_override,
+                )
+            except Exception:
+                score = 50
+
+            occupancy_pct  = round(100 - score, 1)
+            available      = int(sub_lot['total_spaces'] * (score / 100))
+            occupied       = sub_lot['total_spaces'] - available
+
+            if score >= 60:
+                status_label = 'High'
+                status_color = '#22c55e'
+            elif score >= 35:
+                status_label = 'Medium'
+                status_color = '#f59e0b'
+            else:
+                status_label = 'Low'
+                status_color = '#ef4444'
+
+            result.append({
+                **sub_lot,
+                'availability_score':   round(score, 1),
+                'occupancy_pct':        occupancy_pct,
+                'available_spaces':     available,
+                'occupied_spaces':      occupied,
+                'status':               status_label,
+                'status_color':         status_color,
+                'is_available':         score >= 35,
+            })
+
+    return Response({
+        'count':  len(result),
+        'hour':   hour_override,
+        'lots':   result,
     })

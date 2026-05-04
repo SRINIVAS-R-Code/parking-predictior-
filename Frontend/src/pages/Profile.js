@@ -22,7 +22,7 @@ const Profile = () => {
 
     const handleUpdateUserPassword = () => {
         setIsUpdated(false); setError();
-        const body = { cash: form.cash, interac: form.interac }
+        const body = { name: form.name, email: form.email, cash: form.cash, interac: form.interac }
         updateUser({ user_id: user?._id, body, handleUpdateUserSuccess, handleUpdateUserFailure })
     }
     const handleUpdateUserSuccess = (data) => {
@@ -63,7 +63,9 @@ const Profile = () => {
             bookings.forEach(b => {
                 if (b.confirm_booking === 'approved') {
                     app++;
-                    rev += parseFloat(b.space_id?.price || 0);
+                    // Price may be on space_id, or space_id.price, handle both string & number
+                    const rawPrice = b.space_id?.price ?? b.price ?? 0
+                    rev += Number(rawPrice) || 0
                 }
                 if (b.confirm_booking === 'pending') pend++;
             });
@@ -103,7 +105,7 @@ const Profile = () => {
                         <div style={{background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)', padding: 20, borderRadius: 16}}>
                             <div style={{fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8}}>Total Revenue</div>
                             <div style={{fontFamily:"'Space Grotesk',sans-serif", fontSize: 32, fontWeight: 800, color: 'var(--accent)'}}>
-                                ${stats.revenue.toFixed(2)}
+                                ₹{stats.revenue.toFixed(2)}
                             </div>
                         </div>
                         <div style={{background: 'rgba(124,58,237,0.05)', border: '1px solid rgba(124,58,237,0.1)', padding: 20, borderRadius: 16}}>
@@ -126,40 +128,67 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {/* PURE CSS BAR CHART */}
+                    {/* BAR CHART — real booking data per day of week */}
                     <div>
                         <div style={{fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 16, textTransform:'uppercase', letterSpacing: 1}}>
-                            Activity Overview
+                            Booking Activity — This Week
                         </div>
-                        <div style={{
-                            height: 180, display: 'flex', alignItems: 'flex-end', gap: 12,
-                            borderBottom: '1px solid var(--border)', paddingBottom: 10,
-                            position: 'relative'
-                        }}>
-                            {/* Horizontal grid lines */}
-                            {[0, 1, 2, 3].map(i => (
-                                <div key={i} style={{position:'absolute', bottom: i*45 + 10, left: 0, right: 0, height: 1, background:'rgba(255,255,255,0.03)', zIndex: 0}} />
-                            ))}
-                            
-                            {/* Bars (Mock data mixed with real volume for visual flair) */}
-                            {[20, 45, 30, 80, 50, stats.totalObj > 0 ? 90 : 10, stats.totalObj > 0 ? 100 : 15].map((val, idx) => (
-                                <div key={idx} style={{
-                                    flex: 1, position: 'relative', zIndex: 1,
-                                    display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'
-                                }}>
+                        {(() => {
+                            const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+                            const dayKeys = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+                            // Count bookings per day of week from real data
+                            const counts = dayKeys.map(d =>
+                                (bookings || []).filter(b => {
+                                    try {
+                                        const dt = new Date(b.created_at || b.space_id?.date);
+                                        return dt.toLocaleDateString('en-US',{weekday:'long'}) === d;
+                                    } catch { return false; }
+                                }).length
+                            );
+                            const maxVal = Math.max(...counts, 1);
+                            const hasActivity = counts.some(c => c > 0);
+                            return (
+                                <>
+                                    {!hasActivity && (
+                                        <div style={{fontSize:12,color:'var(--text-muted)',marginBottom:10,fontStyle:'italic'}}>
+                                            No booking activity yet — data will appear as bookings are made.
+                                        </div>
+                                    )}
                                     <div style={{
-                                        height: `${val}%`, width: '100%',
-                                        background: idx === 6 ? 'var(--accent-gradient)' : 'rgba(0,212,255,0.15)',
-                                        borderTopLeftRadius: 6, borderTopRightRadius: 6,
-                                        transition: 'height 1s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        boxShadow: idx === 6 ? '0 0 20px rgba(0,212,255,0.3)' : 'none'
-                                    }}></div>
-                                </div>
-                            ))}
-                        </div>
-                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: 11, color: 'var(--text-muted)'}}>
-                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span style={{color:'var(--accent)',fontWeight:700}}>Today</span>
-                        </div>
+                                        height: 180, display: 'flex', alignItems: 'flex-end', gap: 12,
+                                        borderBottom: '1px solid var(--border)', paddingBottom: 10,
+                                        position: 'relative'
+                                    }}>
+                                        {[0, 1, 2, 3].map(i => (
+                                            <div key={i} style={{position:'absolute', bottom: i*45 + 10, left: 0, right: 0, height: 1, background:'rgba(255,255,255,0.03)', zIndex: 0}} />
+                                        ))}
+                                        {counts.map((val, idx) => {
+                                            const pct = Math.round((val / maxVal) * 100) || (hasActivity ? 0 : 5);
+                                            const isToday = new Date().getDay() === (idx + 1) % 7;
+                                            return (
+                                                <div key={idx} style={{ flex: 1, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                                    <div style={{
+                                                        height: `${pct}%`, width: '100%',
+                                                        minHeight: 4,
+                                                        background: isToday ? 'var(--accent-gradient)' : 'rgba(0,212,255,0.15)',
+                                                        borderTopLeftRadius: 6, borderTopRightRadius: 6,
+                                                        transition: 'height 1s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                        boxShadow: isToday ? '0 0 20px rgba(0,212,255,0.3)' : 'none'
+                                                    }}></div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: 11, color: 'var(--text-muted)'}}>
+                                        {days.map((d, i) => (
+                                            <span key={d} style={{color: new Date().getDay() === (i+1) % 7 ? 'var(--accent)' : undefined, fontWeight: new Date().getDay() === (i+1) % 7 ? 700 : 400}}>
+                                                {d}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
             )}
@@ -172,11 +201,13 @@ const Profile = () => {
 
                     <div className="sp-input-group">
                         <label>Name</label>
-                        <input type="text" className="sp-input" value={form?.name} disabled style={{opacity:0.6}} />
+                        <input type="text" className="sp-input" value={form?.name}
+                            onChange={(e) => handleFormChange({ key: 'name', value: e.target.value })} />
                     </div>
                     <div className="sp-input-group">
                         <label>Email</label>
-                        <input type="email" className="sp-input" value={form?.email} disabled style={{opacity:0.6}} />
+                        <input type="email" className="sp-input" value={form?.email}
+                            onChange={(e) => handleFormChange({ key: 'email', value: e.target.value })} />
                     </div>
 
                     {user?.type === 'owner' && <>
@@ -188,8 +219,8 @@ const Profile = () => {
                             <label htmlFor="cash" style={{cursor:'pointer',fontSize:15}}>Accepts Cash</label>
                         </div>
                         <div className="sp-input-group mt-2">
-                            <label>Interac Email</label>
-                            <input type="text" className="sp-input" placeholder="payment@example.com" value={form?.interac}
+                            <label>UPI ID</label>
+                            <input type="text" className="sp-input" placeholder="yourname@upi" value={form?.interac}
                                 onChange={(e) => handleFormChange({ key: 'interac', value: e.target.value })} />
                         </div>
                     </>}

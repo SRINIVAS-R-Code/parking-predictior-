@@ -1,39 +1,35 @@
-# SmartPark — Automated Real-Time Parking Management for Smart Cities
+# SmartPark — Bangalore Parking Availability Predictor
 
-> **HACKAZARDS 2026 Project Submission**
-> 🎯 [View Presentation](https://www.canva.com/design/DAF-psP3_jI/pO-WvED9iEe5Wrc72LmbEQ/view?utm_content=DAF-psP3_jI&utm_campaign=designshare&utm_medium=link&utm_source=editor)
+Imagine a city where finding a parking spot is effortless, where traffic congestion is minimized, and where you can seamlessly navigate urban mobility. That's the vision behind **SmartPark** — Bangalore's premier AI-powered smart parking solution.
 
-Imagine a city where finding a parking spot is effortless, where traffic congestion is minimized, and where you can seamlessly navigate urban mobility. That's the vision behind **SmartPark** — India's premier AI-powered smart parking solution.
-
-SmartPark is not just about convenience; it's about sustainability. We're committed to reducing traffic congestion and air pollution, aligning with India's smart city initiatives.
+SmartPark is a full-stack, machine-learning-driven platform that predicts parking availability across 30 major lots in Bangalore, trained on a massive custom dataset of 600,000 real-world records. It is completely free to use, focusing entirely on spatial efficiency and AI prediction rather than monetization.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
 | Feature | Description |
 |---|---|
-| 🤖 **AI Availability Prediction** | RandomForest ML model predicts real-time parking availability with 94.8% accuracy |
-| 📍 **Live Satellite Map** | Interactive Leaflet.js map with color-coded availability markers across 40+ Indian cities |
-| 📅 **Parking Reservation** | Instant spot booking with owner approval workflow |
-| 💰 **Dynamic Pricing** | Owners set prices; AI-ranked availability helps seekers choose best value |
-| 📊 **Owner Analytics** | Revenue, occupancy, and booking dashboards for parking owners |
-| 🔐 **JWT Authentication** | Secure login with role-based access (Admin / Owner / Seeker) |
+| 🤖 **AI Availability Predictor** | A custom `RandomForestClassifier` trained on 600K rows of Bangalore parking data predicts real-time parking availability. Features an animated, responsive UI with confidence gauges. |
+| 📍 **Live Bangalore Map** | Interactive `Leaflet.js` map tracking 30 canonical Bangalore parking nodes (Malls, Offices, Hospitals, Transit hubs) with ML-driven availability clustering. |
+| 🔍 **Advanced Filtering** | Client-side, lightning-fast filtering of parking spaces by Availability Score (High/Moderate/Low), Location, and Time of Day. |
+| 📅 **Frictionless Booking** | Instant, free spot reservation workflow connecting Seekers directly with Parking Owners. |
+| 📊 **Owner Analytics** | Dashboards for parking owners to track real-time occupancy and booking trends. |
+| 🔐 **Secure Authentication** | Role-based JWT Auth Guard protecting Admin/Owner routes from standard users. |
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Technology Stack
 
 | Layer | Technology |
 |---|---|
-| **ML Engine** | Python · scikit-learn · RandomForestRegressor |
-| **Backend** | Django 4.2 · Django REST Framework |
-| **Auth** | djangorestframework-simplejwt (JWT Bearer tokens) |
-| **Frontend** | React.js · Redux · Redux-Persist |
-| **Map** | Leaflet.js · ESRI Satellite tiles |
-| **Styling** | Vanilla CSS · Inter & Space Grotesk fonts |
-| **Database** | SQLite (dev) · PostgreSQL (prod) |
-| **CORS** | django-cors-headers |
+| **Machine Learning** | Python · scikit-learn · Pandas · RandomForestClassifier |
+| **Backend API** | Django 4.2 · Django REST Framework (DRF) |
+| **Authentication** | `djangorestframework-simplejwt` (JWT Bearer tokens) |
+| **Frontend App** | React.js · Redux Toolkit · React Router v6 |
+| **Mapping** | `Leaflet.js` · OpenStreetMap / ESRI Satellite tiles |
+| **Styling** | Custom Glassmorphism UI · Vanilla CSS · Space Grotesk Font |
+| **Database** | SQLite (dev) |
 
 ---
 
@@ -42,7 +38,7 @@ SmartPark is not just about convenience; it's about sustainability. We're commit
 ### Prerequisites
 - Python 3.9+
 - Node.js 18+
-- pip
+- npm or yarn
 
 ### 1. Clone the repository
 ```bash
@@ -50,51 +46,54 @@ git clone https://github.com/SRINIVAS-R-Code/parking-predictior-.git
 cd parking-predictior-
 ```
 
-### 2. Set up Python virtual environment & install dependencies
+### 2. Set up the Python Backend
 ```bash
+# Create and activate virtual environment
 python -m venv venv
 venv\Scripts\activate          # Windows
-pip install django djangorestframework djangorestframework-simplejwt django-cors-headers scikit-learn pandas joblib
-```
+# source venv/bin/activate     # Mac/Linux
 
-### 3. Run the Django backend
-```bash
+# Install dependencies
+pip install django djangorestframework djangorestframework-simplejwt django-cors-headers scikit-learn pandas joblib
+
+# Run migrations and start server
 cd backend_django
 python manage.py migrate
-python seed.py                 # (Optional) seed sample parking data
-python manage.py runserver     # → http://127.0.0.1:8000
+python manage.py runserver     
+# Server runs on http://127.0.0.1:8000
 ```
 
-### 4. Run the React frontend
+### 3. Run the React Frontend
 ```bash
 cd Frontend
 npm install
-npm start                      # → http://localhost:3000
+npm start                      
+# App runs on http://localhost:3000
 ```
 
 ---
 
 ## 🗂 Project Structure
 
-```
+```text
 parking-predictior-/
-├── backend_django/            # Django backend
+├── backend_django/            # Django Backend Server
 │   ├── api/
-│   │   ├── models.py          # User, Parking, Space, Booking, Review
-│   │   ├── views.py           # REST API ViewSets
-│   │   ├── serializers.py
-│   │   ├── urls.py
-│   │   ├── predictor.py       # 🤖 ML prediction engine
-│   │   ├── train_model.py     # RandomForest training script
-│   │   └── parking_model.pkl  # Pre-trained model
-│   └── backend_django/        # Django settings & URLs
-├── Frontend/                  # React frontend
+│   │   ├── models.py          # User, Parking, Space, Booking, Review schemas
+│   │   ├── views.py           # REST APIs (Auth, CRUD, Prediction)
+│   │   ├── predictor.py       # Live ML prediction inference engine
+│   │   ├── train_model.py     # Script to generate RandomForest model
+│   │   ├── bangalore_lots.py  # Canonical coordinate data for 30 Bangalore lots
+│   │   └── parking_model.pkl  # Compiled ML artifact
+│   └── smart_parking_bengaluru_600k.csv  # 600K row ML training dataset
+├── Frontend/                  # React Frontend App
+│   ├── public/
 │   └── src/
-│       ├── pages/             # Home, Parking (Map), Space, Booking, etc.
-│       ├── api/api.js         # Axios API calls
-│       ├── reducers/          # Redux user state
-│       └── css/global.css     # Full design system
-├── smart_parking_usage_occupancy_analytics.csv   # Training dataset
+│       ├── components/        # Reusable UI cards and forms
+│       ├── pages/             # Predictor, Map, Bookings, Auth flows
+│       ├── api/api.js         # Axios HTTP interceptors
+│       ├── reducers/          # Redux state slices
+│       └── css/global.css     # Design system tokens and animations
 └── README.md
 ```
 
@@ -104,6 +103,7 @@ parking-predictior-/
 
 **Srinivas R**
 - GitHub: [@SRINIVAS-R-Code](https://github.com/SRINIVAS-R-Code)
+- Email: srinivassrini14592@gmail.com
 
 ---
 

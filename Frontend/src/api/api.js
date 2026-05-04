@@ -143,8 +143,8 @@ export const fetchBookings = async ({ owner_id, user_id, setBookings }) => {
             query += `owner_id=${owner_id}&`;
         }
         const result = await axios.get(`${BASE_URL}booking?${query}`)
-        if (result?.data?.length) {
-            setBookings(result?.data)
+        if (result?.data !== undefined) {
+            setBookings(result.data)
         }
         console.log('fetchBookings ', result);
     } catch (error) {
