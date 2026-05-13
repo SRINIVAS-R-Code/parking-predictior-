@@ -189,7 +189,7 @@ const Parking = () => {
 
     const fetchBangaloreLots = async (h) => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/bangalore-lots/?hour=${h}`)
+            const res = await axios.get(`https://parking-predictior.onrender.com/api/bangalore-lots/?hour=${h}`)
             const data = res.data.lots || []
             const mapped = data.map(l => ({
                 id: l.lot_id,

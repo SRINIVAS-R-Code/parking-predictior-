@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const LOTS = [
@@ -44,7 +45,7 @@ const DURATIONS = [
 
 const PURPOSES = ['Shopping','Office','Event','Hospital','Restaurant','Other'];
 
-const API = 'http://localhost:8000/api';
+const API = 'https://parking-predictior.onrender.com/api';
 
 // Circular gauge SVG
 const Gauge = ({ pct, color }) => {
@@ -62,6 +63,7 @@ const Gauge = ({ pct, color }) => {
 };
 
 export default function ParkingPredictor() {
+  const navigate = useNavigate();
   const [lot,      setLot]      = useState(LOTS[0].name);
   const [date,     setDate]     = useState(new Date().toISOString().split('T')[0]);
   const [time,     setTime]     = useState('10:00');
@@ -299,11 +301,53 @@ export default function ParkingPredictor() {
                 </div>
 
                 {/* Advice */}
-                <div style={{ padding:'14px 18px', borderRadius:12, background: isAvail ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border:`1px solid ${isAvail ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, fontSize:13, color:'var(--text-secondary)', lineHeight:1.6 }}>
+                <div style={{ padding:'14px 18px', borderRadius:12, background: isAvail ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border:`1px solid ${isAvail ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, fontSize:13, color:'var(--text-secondary)', lineHeight:1.6, marginBottom:20 }}>
                   {isAvail
                     ? `✅ Good chance of parking! Arrive by ${time} for best results. ${prob >= 80 ? 'Spaces are very likely available.' : 'Some spaces should be open.'}`
                     : `⚠️ Parking may be tight at ${time}. Consider arriving earlier or choosing a different time slot.`}
                 </div>
+
+                {/* Find Spaces CTA */}
+                <button
+                  onClick={() => {
+                    const lotObj = LOTS.find(l => l.name === lot) || LOTS[0];
+                    navigate('/space', {
+                      state: {
+                        parking: {
+                          name: lot,
+                          city: 'Bangalore',
+                          address: lotObj.name,
+                          area: lot,
+                          type: lotObj.type,
+                          total_spaces: lotObj.spaces,
+                          available_spaces: avail,
+                          availability_score: prob,
+                          avg_availability: prob,
+                          price_per_hour: 50,
+                          isBangaloreLot: true,
+                          predictedAt: time,
+                          predictedDate: date,
+                          predictedPurpose: purpose,
+                        }
+                      }
+                    });
+                  }}
+                  style={{
+                    width:'100%', padding:'13px', borderRadius:12,
+                    background: isAvail
+                      ? 'linear-gradient(135deg,#10b981,#059669)'
+                      : 'linear-gradient(135deg,#f59e0b,#d97706)',
+                    color:'#fff', border:'none', fontWeight:800,
+                    fontSize:15, cursor:'pointer',
+                    boxShadow: isAvail ? '0 6px 20px rgba(16,185,129,0.4)' : '0 6px 20px rgba(245,158,11,0.4)',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:10,
+                    transition:'all .2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity='0.88'}
+                  onMouseLeave={e => e.currentTarget.style.opacity='1'}
+                >
+                  🅿️ Find Available Spaces at {lot.split(' ').slice(0,2).join(' ')}
+                </button>
               </div>
             );
           })()}

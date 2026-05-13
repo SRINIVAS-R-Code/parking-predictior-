@@ -1,6 +1,6 @@
 import axios from 'axios'
-const BASE_URL = "http://localhost:8000/"
-// const BASE_URL = "https://smartpark-backend.onrender.com/"  // SmartPark Production URL
+// const BASE_URL = "http://localhost:8000/"  // Local development
+const BASE_URL = "https://parking-predictior.onrender.com/"  // Production
 
 export const fetchParkings = async ({ user_id, setParkings }) => {
     try {
