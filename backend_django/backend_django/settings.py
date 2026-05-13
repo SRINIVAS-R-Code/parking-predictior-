@@ -140,9 +140,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # CORS Settings — update CORS_ALLOWED_ORIGINS after Netlify deploy
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    # "https://YOUR-NETLIFY-APP.netlify.app",   ← uncomment & fill after Netlify deploy
+    "https://gorgeous-pegasus-b6f730.netlify.app",   # ← Netlify frontend
+    "https://parking-predictior.onrender.com",        # ← Render backend self
 ]
-CORS_ALLOW_ALL_ORIGINS = True   # ← temporary; restrict to your frontend URL in production
+CORS_ALLOW_ALL_ORIGINS = False   # ← restricted to known origins only
 CORS_ALLOW_CREDENTIALS = True
 
 # DRF Settings
