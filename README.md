@@ -1,7 +1,7 @@
 # SmartPark — Bangalore Parking Availability Predictor
 
 [![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify)](https://gorgeous-pegasus-b6f730.netlify.app)
-[![Backend API](https://img.shields.io/badge/⚙️%20Backend%20API-Render-46E3B7?style=for-the-badge&logo=render)](https://parking-predictior.onrender.com/api/parking/)
+[![Backend API](https://img.shields.io/badge/⚙️%20Backend%20API-Render-46E3B7?style=for-the-badge&logo=render)](https://parking-predictior.onrender.com/parking)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/SRINIVAS-R-Code/parking-predictior-)
 
 ## 🌐 Live Links
@@ -9,7 +9,8 @@
 | Service | URL |
 |---|---|
 | 🌍 **Frontend (Live Site)** | [https://gorgeous-pegasus-b6f730.netlify.app](https://gorgeous-pegasus-b6f730.netlify.app) |
-| ⚙️ **Backend API** | [https://parking-predictior.onrender.com](https://parking-predictior.onrender.com/api/parking/) |
+| ⚙️ **Backend API** | [https://parking-predictior.onrender.com/parking](https://parking-predictior.onrender.com/parking) |
+| 🗺️ **Bangalore ML Lots** | [https://parking-predictior.onrender.com/api/bangalore-lots/?hour=10](https://parking-predictior.onrender.com/api/bangalore-lots/?hour=10) |
 
 > 💡 First load may take **30-60 seconds** as the free backend wakes from sleep. After that it's instant!
 
