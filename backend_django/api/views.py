@@ -595,3 +595,32 @@ def api_bangalore_lots(request):
         'hour':   hour_override,
         'lots':   result,
     })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_root(request):
+    """
+    GET /  → SmartPark API welcome page
+    """
+    return Response({
+        'name': '🚗 SmartPark API',
+        'description': 'Bangalore Smart Parking Availability Predictor — AI-powered backend',
+        'status': '✅ Live',
+        'version': '1.0.0',
+        'ml_model': 'RandomForestClassifier — trained on 600K records',
+        'endpoints': {
+            'parking_lots':     '/parking',
+            'spaces':           '/space',
+            'bookings':         '/booking',
+            'users':            '/user',
+            'bangalore_lots':   '/api/bangalore-lots/?hour=10',
+            'predict':          '/api/predict?city=Koramangala&time=10:00am&price=50',
+            'predict_v2':       '/api/predict/v2/',
+            'model_info':       '/api/model-info/',
+            'login':            '/user/login  [POST]',
+            'register':         '/user/register  [POST]',
+        },
+        'frontend': 'https://gorgeous-pegasus-b6f730.netlify.app',
+        'github':   'https://github.com/SRINIVAS-R-Code/parking-predictior-',
+    })

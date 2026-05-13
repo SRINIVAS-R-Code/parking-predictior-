@@ -6,7 +6,7 @@ from .views import (
     register_user, login_user, reset_password,
     api_slots, api_predict, api_history, api_predict_bulk,
     predict_parking, model_info, batch_predict,
-    api_bangalore_lots
+    api_bangalore_lots, api_root
 )
 
 router = DefaultRouter(trailing_slash=False)
@@ -18,6 +18,9 @@ router.register(r'review', ReviewViewSet, basename='review')
 router.register(r'paymentMethod', PaymentMethodViewSet, basename='paymentMethod')
 
 urlpatterns = [
+    # ── Root welcome page ─────────────────────────────────────
+    path('', api_root, name='api_root'),
+
     # ── Auth ──────────────────────────────────────────────────
     path('user/register', register_user, name='register_user'),
     path('user/login', login_user, name='login_user'),
