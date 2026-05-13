@@ -1,5 +1,20 @@
 # SmartPark — Bangalore Parking Availability Predictor
 
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-Netlify-00C7B7?style=for-the-badge&logo=netlify)](https://gorgeous-pegasus-b6f730.netlify.app)
+[![Backend API](https://img.shields.io/badge/⚙️%20Backend%20API-Render-46E3B7?style=for-the-badge&logo=render)](https://parking-predictior.onrender.com/api/parking/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/SRINIVAS-R-Code/parking-predictior-)
+
+## 🌐 Live Links
+
+| Service | URL |
+|---|---|
+| 🌍 **Frontend (Live Site)** | [https://gorgeous-pegasus-b6f730.netlify.app](https://gorgeous-pegasus-b6f730.netlify.app) |
+| ⚙️ **Backend API** | [https://parking-predictior.onrender.com](https://parking-predictior.onrender.com/api/parking/) |
+
+> 💡 First load may take **30-60 seconds** as the free backend wakes from sleep. After that it's instant!
+
+---
+
 Imagine a city where finding a parking spot is effortless, where traffic congestion is minimized, and where you can seamlessly navigate urban mobility. That's the vision behind **SmartPark** — Bangalore's premier AI-powered smart parking solution.
 
 SmartPark is a full-stack, machine-learning-driven platform that predicts parking availability across 30 major lots in Bangalore, trained on a massive custom dataset of 600,000 real-world records. It is completely free to use, focusing entirely on spatial efficiency and AI prediction rather than monetization.
