@@ -5,3 +5,6 @@ set -o errexit
 pip install -r requirements.txt
 python manage.py collectstatic --no-input
 python manage.py migrate
+
+# Seed all 30 Bangalore lots + 180 real Space records into the DB
+python manage.py seed_bangalore_spaces

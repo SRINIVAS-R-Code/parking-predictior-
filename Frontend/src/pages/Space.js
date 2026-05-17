@@ -96,50 +96,67 @@ const Space = () => {
             const p = state.parking;
             setFromMapLot(p);
 
-            // ── If this is a Bangalore map lot (isBangaloreLot flag or LOT_ prefix),
-            //    skip the DB call entirely and show AI preview slots immediately ──
             const isBangaloreLot =
                 p.isBangaloreLot ||
                 String(p._id  || '').startsWith('LOT_') ||
                 String(p.id   || '').startsWith('LOT_');
 
-            if (isBangaloreLot) {
-                // Show preview slots instantly — no backend wait needed
-                setSpaces(buildPreviewSlots(p));
-                setLoadingSource('preview');
-                return;
-            }
-
-            // ── Real DB lot: try fetching actual spaces ──
             setLoadingSource('db');
             let settled = false;
 
-            // Safety timeout: if backend takes >6 s, fall back to preview
+            // Safety timeout: fall back to AI preview if backend is too slow
             const timer = setTimeout(() => {
                 if (!settled) {
                     settled = true;
                     setSpaces(buildPreviewSlots(p));
                     setLoadingSource('preview');
                 }
-            }, 6000);
+            }, 8000);
 
-            fetchSpaces({
-                parking_id: p._id,
-                setSpaces: (fetched) => {
-                    if (!settled) {
-                        settled = true;
-                        clearTimeout(timer);
-                        if (fetched && fetched.length > 0) {
-                            setSpaces(fetched);
-                            setLoadingSource('real');
-                        } else {
-                            // DB empty → AI preview
-                            setSpaces(buildPreviewSlots(p));
-                            setLoadingSource('preview');
+            if (isBangaloreLot) {
+                // Bangalore lots: search DB by city + lot name match
+                // (seeded by seed_bangalore_spaces management command)
+                fetchSpaces({
+                    city: 'Bangalore',
+                    setSpaces: (fetched) => {
+                        if (!settled) {
+                            settled = true;
+                            clearTimeout(timer);
+                            // Filter to just this lot's spaces by name
+                            const lotSpaces = fetched.filter(s =>
+                                s.parking_id?.name === p.name ||
+                                s.parking_id?.name?.toLowerCase() === p.name?.toLowerCase()
+                            );
+                            if (lotSpaces.length > 0) {
+                                setSpaces(lotSpaces);
+                                setLoadingSource('real');
+                            } else {
+                                // No seeded data yet → AI preview
+                                setSpaces(buildPreviewSlots(p));
+                                setLoadingSource('preview');
+                            }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                // Real DB lot with a numeric parking_id
+                fetchSpaces({
+                    parking_id: p._id,
+                    setSpaces: (fetched) => {
+                        if (!settled) {
+                            settled = true;
+                            clearTimeout(timer);
+                            if (fetched && fetched.length > 0) {
+                                setSpaces(fetched);
+                                setLoadingSource('real');
+                            } else {
+                                setSpaces(buildPreviewSlots(p));
+                                setLoadingSource('preview');
+                            }
+                        }
+                    }
+                });
+            }
 
             return () => clearTimeout(timer);
         } else {
