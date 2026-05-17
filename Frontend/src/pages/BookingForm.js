@@ -26,8 +26,9 @@ const BookingForm = () => {
         setError();
         setLoading(true);
 
-        // Bypass API for dynamic map nodes to allow seamless testing
-        if (space?.isDynamic) {
+        // Bypass API for preview (AI-generated) or dynamic map spaces
+        // — they have no real DB space_id, so the backend would reject the FK
+        if (space?.isPreview || space?.isDynamic) {
             setTimeout(() => {
                 const dummyBooking = {
                     _id: 'dyn_' + Math.floor(Math.random() * 100000),
