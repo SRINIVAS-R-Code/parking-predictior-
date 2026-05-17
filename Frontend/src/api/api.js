@@ -98,12 +98,13 @@ export const fetchSpaces = async ({ user_id, parking_id, city, date, time, avail
             query += `availability=${availability}`
         }
         const result = await axios.get(`${BASE_URL}space?${query}`)
-        if (result?.data?.length) {
-            setSpaces(result?.data)
-        }
+        // Always call setSpaces so callers can apply fallback logic on empty results
+        setSpaces(result?.data || [])
         console.log('fetchSpaces ', result);
     } catch (error) {
         console.error('fetchSpaces ', error);
+        // Ensure setSpaces is always called so callers can apply fallback (preview) logic
+        if (setSpaces) setSpaces([]);
     }
 }
 

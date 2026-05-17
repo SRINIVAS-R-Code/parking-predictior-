@@ -13,6 +13,65 @@ const TIME_SLOTS = [
     { start: '6:00pm',  end: '8:00pm'  },
 ]
 
+// ── Deterministic seed from lot name so every lot is unique ────
+const makeSeed = (name = '') => {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (Math.imul(31, h) + name.charCodeAt(i)) | 0;
+    return Math.abs(h);
+}
+
+// ── Slot labels per lot type ──────────────────────────────────
+const SLOT_LABELS = {
+    Mall:        ['Level 1 – Bay A', 'Level 1 – Bay B', 'Level 2 – Bay A', 'Level 2 – Bay B', 'Level 3 – Bay A', 'Terrace Park'],
+    Office:      ['Block A – Fl. 1', 'Block A – Fl. 2', 'Block B – Fl. 1', 'Block B – Fl. 2', 'Visitor Bay',     'Reserved Zone'],
+    Hospital:    ['Emergency Bay',   'OPD Parking',     'Visitor Zone A',  'Visitor Zone B',  'Night Parking',   'Staff Reserved'],
+    Airport:     ['P1 – Level 1',    'P1 – Level 2',    'P2 – Level 1',    'P2 – Level 2',    'Short Stay',      'Long Stay'],
+    Transit:     ['Platform Bay 1',  'Platform Bay 2',  'Short Stop',      'Day Parking',     'Night Parking',   'Commuter Zone'],
+    Street:      ['North Side',      'South Side',      'East Corner',     'West Corner',     'Near Junction',   'Service Lane'],
+    Residential: ['Block A',         'Block B',         'Visitor Slot',    'Two-Wheeler',     'EV Charging',     'Night Slot'],
+}
+const BASE_PRICE = { Mall:60, Office:50, Hospital:40, Airport:120, Transit:30, Street:20, Residential:25 }
+
+// Natural hour-of-day offset from lot average (not a multiplier — keeps mid/low realistic)
+// Morning rush → slightly below avg; midday → above avg; evening rush → below avg again
+const HOUR_OFFSETS = [+4, +8, +12, -8, -14, -2]
+
+// ── Build unique preview slots for one lot ─────────────────────
+const buildPreviewSlots = (p) => {
+    const score     = p.availability_score ?? p.avg_availability ?? 50
+    const seed      = makeSeed(p.name)
+    const labels    = (SLOT_LABELS[p.type] || ['Zone A','Zone B','Zone C','Zone D','Zone E','Zone F'])
+    const count     = Math.min(6, Math.max(3, Math.ceil((p.total_spaces || 100) / 80)))
+    const basePrice = (BASE_PRICE[p.type] || 50) + (seed % 11) - 5
+
+    return labels.slice(0, count).map((name, i) => {
+        // Seed-based jitter: ±10 unique to this lot + slot index
+        const jitter    = ((seed >> (i * 3 + 2)) & 0x1f) - 10      // range -10 … +11
+        // Final slot score = lot score + natural hour drift + lot-specific jitter
+        const rawScore  = score + HOUR_OFFSETS[i] + jitter
+        const slotScore = Math.min(97, Math.max(8, Math.round(rawScore)))
+        const slotPrice = Math.max(15, basePrice + ((seed >> (i + 3)) % 21) - 7)
+        return {
+            _id:              `prev_${seed}_${i}`,
+            name,
+            parking_id: {
+                name:    p.name,
+                city:    p.city    || 'Bangalore',
+                address: p.address || p.area || p.city || 'Bangalore',
+            },
+            date:             new Date(),
+            slot_start_time:  TIME_SLOTS[i].start,
+            slot_end_time:    TIME_SLOTS[i].end,
+            price:            slotPrice,
+            availability_score: slotScore,
+            lot_type:         p.type  || 'Parking',
+            total_spaces:     p.total_spaces || 100,
+            isPreview:        true,
+        }
+    })
+}
+
+
 const Space = () => {
     const user = useSelector((state) => state.user);
     const navigate = useNavigate();
@@ -37,44 +96,52 @@ const Space = () => {
             const p = state.parking;
             setFromMapLot(p);
 
-            // Try to load real DB spaces by the parking lot's area/city
-            const cityToSearch = p.address || p.city || '';
-            setLoadingSource('db');
+            // ── If this is a Bangalore map lot (isBangaloreLot flag or LOT_ prefix),
+            //    skip the DB call entirely and show AI preview slots immediately ──
+            const isBangaloreLot =
+                p.isBangaloreLot ||
+                String(p._id  || '').startsWith('LOT_') ||
+                String(p.id   || '').startsWith('LOT_');
 
-            const queryParams = {};
-            // If the lot has a real MongoDB-style _id (not a LOT_XX string), use it directly
-            if (p._id && !String(p._id).startsWith('LOT_') && !String(p.id).startsWith('LOT_')) {
-                queryParams.parking_id = p._id;
-            } else {
-                // Bangalore ML lot — search by area name which is stored as city in seed
-                queryParams.city = cityToSearch;
+            if (isBangaloreLot) {
+                // Show preview slots instantly — no backend wait needed
+                setSpaces(buildPreviewSlots(p));
+                setLoadingSource('preview');
+                return;
             }
 
+            // ── Real DB lot: try fetching actual spaces ──
+            setLoadingSource('db');
+            let settled = false;
+
+            // Safety timeout: if backend takes >6 s, fall back to preview
+            const timer = setTimeout(() => {
+                if (!settled) {
+                    settled = true;
+                    setSpaces(buildPreviewSlots(p));
+                    setLoadingSource('preview');
+                }
+            }, 6000);
+
             fetchSpaces({
-                ...queryParams,
+                parking_id: p._id,
                 setSpaces: (fetched) => {
-                    if (fetched && fetched.length > 0) {
-                        setSpaces(fetched);
-                        setLoadingSource('real');
-                    } else {
-                        // Fallback: generate preview slots only if nothing in DB
-                        const score = p.availability_score ?? p.avg_availability ?? 50;
-                        const previewSlots = TIME_SLOTS.map((slot, i) => ({
-                            _id: 'preview_' + i,
-                            name: 'Slot ' + ['A1','A2','B1','B2','C1','C2'][i],
-                            parking_id: { name: p.name, city: p.city || p.area || '', address: p.address || '' },
-                            date: new Date(),
-                            slot_start_time: slot.start,
-                            slot_end_time: slot.end,
-                            price: p.price || p.price_per_hour || 50,
-                            availability_score: Math.min(100, Math.max(10, score + (i % 3 === 0 ? -8 : i % 3 === 1 ? 5 : -3))),
-                            isPreview: true,
-                        }));
-                        setSpaces(previewSlots);
-                        setLoadingSource('preview');
+                    if (!settled) {
+                        settled = true;
+                        clearTimeout(timer);
+                        if (fetched && fetched.length > 0) {
+                            setSpaces(fetched);
+                            setLoadingSource('real');
+                        } else {
+                            // DB empty → AI preview
+                            setSpaces(buildPreviewSlots(p));
+                            setLoadingSource('preview');
+                        }
                     }
                 }
             });
+
+            return () => clearTimeout(timer);
         } else {
             setLoadingSource('list');
             const queryParams = {};
