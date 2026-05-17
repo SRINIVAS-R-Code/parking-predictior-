@@ -71,6 +71,43 @@ const buildPreviewSlots = (p) => {
     })
 }
 
+// ── All 30 Bangalore lots — local data, zero backend needed ──────────────
+const ALL_BANGALORE_LOTS = [
+    { name:'MG Road Central Park',      type:'Mall',        total_spaces:300,  avg_availability:46, city:'Bangalore', address:'MG Road'         },
+    { name:'Jayanagar Shopping Mall',   type:'Mall',        total_spaces:250,  avg_availability:46, city:'Bangalore', address:'Jayanagar'        },
+    { name:'Bannerghatta Grand Mall',   type:'Mall',        total_spaces:400,  avg_availability:46, city:'Bangalore', address:'Bannerghatta'     },
+    { name:'Orion Mall Rajajinagar',    type:'Mall',        total_spaces:500,  avg_availability:46, city:'Bangalore', address:'Rajajinagar'      },
+    { name:'Phoenix Marketcity',        type:'Mall',        total_spaces:600,  avg_availability:46, city:'Bangalore', address:'Whitefield'       },
+    { name:'Mantri Square Mall',        type:'Mall',        total_spaces:450,  avg_availability:46, city:'Bangalore', address:'Malleswaram'      },
+    { name:'Forum Koramangala',         type:'Mall',        total_spaces:350,  avg_availability:46, city:'Bangalore', address:'Koramangala'      },
+    { name:'Whitefield IT Hub',         type:'Office',      total_spaces:500,  avg_availability:58, city:'Bangalore', address:'Whitefield'       },
+    { name:'Koramangala Square',        type:'Office',      total_spaces:200,  avg_availability:58, city:'Bangalore', address:'Koramangala'      },
+    { name:'HSR Layout Hub',            type:'Office',      total_spaces:180,  avg_availability:58, city:'Bangalore', address:'HSR Layout'       },
+    { name:'Electronic City Park',      type:'Office',      total_spaces:600,  avg_availability:58, city:'Bangalore', address:'Electronic City'  },
+    { name:'Manyata Tech Park',         type:'Office',      total_spaces:800,  avg_availability:58, city:'Bangalore', address:'Hebbal'           },
+    { name:'Bagmane Tech Park',         type:'Office',      total_spaces:700,  avg_availability:58, city:'Bangalore', address:'CV Raman Nagar'   },
+    { name:'RMZ Ecospace',              type:'Office',      total_spaces:550,  avg_availability:58, city:'Bangalore', address:'Bellandur'        },
+    { name:'Yelahanka Township Office', type:'Office',      total_spaces:220,  avg_availability:58, city:'Bangalore', address:'Yelahanka'        },
+    { name:'Manipal Hospital Parking',  type:'Hospital',    total_spaces:200,  avg_availability:40, city:'Bangalore', address:'Old Airport Road' },
+    { name:'Fortis Cunningham Road',    type:'Hospital',    total_spaces:150,  avg_availability:40, city:'Bangalore', address:'Cunningham Road'  },
+    { name:'Narayana Health City',      type:'Hospital',    total_spaces:300,  avg_availability:40, city:'Bangalore', address:'Bommasandra'      },
+    { name:'Indiranagar Metro Park',    type:'Street',      total_spaces:120,  avg_availability:50, city:'Bangalore', address:'Indiranagar'      },
+    { name:'Hebbal Flyover Park',       type:'Street',      total_spaces:100,  avg_availability:50, city:'Bangalore', address:'Hebbal'           },
+    { name:'Marathahalli Bridge Park',  type:'Street',      total_spaces:150,  avg_availability:50, city:'Bangalore', address:'Marathahalli'     },
+    { name:'Yeshwanthpur Circle Park',  type:'Street',      total_spaces:130,  avg_availability:50, city:'Bangalore', address:'Yeshwanthpur'     },
+    { name:'Basavanagudi Street Park',  type:'Street',      total_spaces:90,   avg_availability:50, city:'Bangalore', address:'Basavanagudi'     },
+    { name:'Shivajinagar Bus Stand',    type:'Street',      total_spaces:110,  avg_availability:50, city:'Bangalore', address:'Shivajinagar'     },
+    { name:'Kempegowda Airport P1',     type:'Airport',     total_spaces:1000, avg_availability:36, city:'Bangalore', address:'Devanahalli'      },
+    { name:'Kempegowda Airport P2',     type:'Airport',     total_spaces:800,  avg_availability:36, city:'Bangalore', address:'Devanahalli'      },
+    { name:'Majestic Bus Terminal',     type:'Transit',     total_spaces:200,  avg_availability:44, city:'Bangalore', address:'Majestic'         },
+    { name:'KSR Railway Station Park',  type:'Transit',     total_spaces:250,  avg_availability:44, city:'Bangalore', address:'Majestic'         },
+    { name:'Sarjapur Road Apts',        type:'Residential', total_spaces:160,  avg_availability:52, city:'Bangalore', address:'Sarjapur Road'    },
+    { name:'JP Nagar Society Park',     type:'Residential', total_spaces:140,  avg_availability:52, city:'Bangalore', address:'JP Nagar'         },
+]
+
+// Instantly builds all slots for all 30 lots — pure JS, no network call
+const buildAllInstantSlots = () => ALL_BANGALORE_LOTS.flatMap(lot => buildPreviewSlots(lot))
+
 
 const Space = () => {
     const user = useSelector((state) => state.user);
@@ -160,10 +197,29 @@ const Space = () => {
 
             return () => clearTimeout(timer);
         } else {
-            setLoadingSource('list');
-            const queryParams = {};
-            if (user?.type === 'owner') queryParams.user_id = user?._id;
-            fetchSpaces({ ...queryParams, setSpaces });
+            if (user?.type === 'owner') {
+                // Owner: fetch only their own spaces from DB
+                setLoadingSource('list');
+                fetchSpaces({ user_id: user?._id, setSpaces });
+            } else {
+                // Seeker (or not logged in): show all 180 slots INSTANTLY
+                // from local data — no network wait at all
+                setSpaces(buildAllInstantSlots());
+                setLoadingSource('preview');
+
+                // Then silently try to fetch real DB spaces in background
+                // and replace the instant preview if real data exists
+                fetchSpaces({
+                    city: 'Bangalore',
+                    setSpaces: (fetched) => {
+                        if (fetched && fetched.length > 0) {
+                            setSpaces(fetched);
+                            setLoadingSource('real');
+                        }
+                        // else: keep showing instant preview — no flicker
+                    }
+                });
+            }
         }
     }, [state, user])
 
